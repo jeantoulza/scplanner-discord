@@ -1,0 +1,5 @@
+MechanicalSoup
+requests
+soundcloud
+discord.py
+beautifulsoup4
