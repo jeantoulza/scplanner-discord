@@ -1,4 +1,3 @@
-
 SCPlanner Discord bot
 ===================
 
@@ -11,9 +10,9 @@ Commands
 Installation
 -------
 1. Clone this repo.
-2. Configure `config.ini` to your needs.
-3. Run `pip install -r requirements.txt`
-4. Run `python bot.py`
+2. Configure `config.ini.example` to your needs, then rename it to `config.ini`.
+3. Run `pip install -r requirements.txt`.
+4. Run `python bot.py`.
 
 Configuration
 -------
@@ -33,3 +32,7 @@ Invite on your server
 3. Copy the link with the default settings.
 	![Copy](https://cdn.discordapp.com/attachments/335156054297935874/434005008778919939/unknown.png)
 4. Paste it in your browser, then proceed to add the bot on your server.
+
+Screenshots
+-------
+![Success](http://i.hipstercat.fr/10r5CzjY.png)
