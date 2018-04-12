@@ -108,7 +108,7 @@ def auto(track_url):
 	rep_json = json.loads(rep)
 	if not isinstance(rep_json, list):
 		if rep_json["title"] == "Error S-788":
-			raise Exception("You have probably set use_all_accounts to 'no' and haven't set your account preferences. Please set them here: https://scplanner.net/account")
+			raise Exception("You have probably set use_all_accounts to 'no' and have not set your account preferences. Please set them here: https://scplanner.net/account")
 		else:
 			print(rep_json)
 			raise Exception("Unknown error. Please fill an issue on https://github.com/jeantoulza/scplanner-discord.")
@@ -150,11 +150,11 @@ def start_bot():
 		"""Reposts an URL on SCPlanner."""
 		user = ctx.message.author
 		if not isinstance(user, discord.Member):
-			await bot.say("Please use this command in a server.")
+			await bot.say("Please use this command in a server that the bot is located in.")
 			return
 			
 		if not has_role(user, config["CONFIG"]["reposters_role"]):
-			await bot.say("You do no have the required role.")
+			await bot.say("You do not have the required role to repost or use this bot.")
 			return
 		try:
 			calendar_link = auto(url)
