@@ -1,0 +1,4 @@
+[CONFIG]
+cookie_name = ci_session
+cookie_value = get_your_own
+bot_token = get_your_own
