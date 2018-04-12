@@ -35,4 +35,4 @@ Invite on your server
 
 Screenshots
 -------
-![Success](http://i.hipstercat.fr/10r5CzjY.png)
+![Success](https://i.hipstercat.fr/storage/10r5CzjY.png)
