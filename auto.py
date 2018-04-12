@@ -16,24 +16,21 @@ BASE = "https://scplanner.net/"
 COOKIE_NAME = config["CONFIG"]["cookie_name"]
 COOKIE_VALUE = config["CONFIG"]["cookie_value"]
 
-print(COOKIE_NAME+"="+COOKIE_VALUE)
-
 def get_cookie_jar():
-		try:
-			from cookielib import Cookie, CookieJar         # Python 2
-		except ImportError:
-			from http.cookiejar import Cookie, CookieJar    # Python 3.
-			from http.cookies import SimpleCookie
-		cj = CookieJar()
-		# Cookie(version, name, value, port, port_specified, domain, 
-		# domain_specified, domain_initial_dot, path, path_specified, 
-		# secure, discard, comment, comment_url, rest)
-		c = Cookie(version=0, name=COOKIE_NAME, value=COOKIE_VALUE, port=None, port_specified=False, domain='scplanner.net', 
-			   domain_specified=True, domain_initial_dot=False, path='/', path_specified=True, secure=False, expires=None, discard=True, comment=None, comment_url=None, rest=None, rfc2109=True)
-		cj.set_cookie(c)
-		return cj
+	'''
+	Creates a cookie jar for the mechanicalsoup browser
+	'''
+	from http.cookiejar import Cookie, CookieJar
+	cj = CookieJar()
+	c = Cookie(version=0, name=COOKIE_NAME, value=COOKIE_VALUE, port=None, port_specified=False, domain='scplanner.net', 
+		   domain_specified=True, domain_initial_dot=False, path='/', path_specified=True, secure=False, expires=None, discard=True, comment=None, comment_url=None, rest=None, rfc2109=True)
+	cj.set_cookie(c)
+	return cj
 		
 def resolve(url):
+	'''
+	Transforms a 'url' into a soundcloud object. False if not found.
+	'''
 	client_id = "nF5U0gNsNB8529U1rHetpIywdIlnEKk7"
 	client = soundcloud.Client(client_id=client_id)
 	try:
@@ -51,6 +48,9 @@ def resolve(url):
 			return False
 			
 def get_client_id():
+	'''
+	Tricky part to get the current public client_id of SoundCloud's website
+	'''
 	body = requests.get("https://soundcloud.com").text
 	reg_app = r'https:\/\/a-v2\.sndcdn\.com\/assets\/app(.*).js'
 	matches = re.search(reg_app,body)
@@ -86,26 +86,32 @@ def auto(track_url):
 	try:
 		br.select_form("#autoschForm")
 		br["urls"] = track_url
-		soup = BeautifulSoup(rep.text, "html.parser")
-		accounts_select = soup.find("select", {"name": "account[]"})
-		accounts = []
-		for account_option in accounts_select.findAll("option"):
-			accounts.append(account_option["value"])
-		br["account[]"] = tuple(accounts)
-		#br["account[]"] = (107375074, 195766419)
+		
+		use_all_accounts = False
+		try:
+			if config["AUTO"]["use_all_accounts"] == "yes":
+				soup = BeautifulSoup(rep.text, "html.parser")
+				accounts_select = soup.find("select", {"name": "account[]"})
+				accounts = []
+				for account_option in accounts_select.findAll("option"):
+					accounts.append(account_option["value"])
+				br["account[]"] = tuple(accounts)
+				#br["account[]"] = (107375074, 195766419)
+		except:
+			pass
 		rep = br.submit_selected()
 	except:
-		raise Exception("ERROR 131: There was a problem when posting URL on SCPlanner. Is your account still valid?")
+		raise Exception("There was a problem when posting URL on SCPlanner. Is your account still valid?")
 	
 	rep = rep.text
 	
 	rep_json = json.loads(rep)
 	if not isinstance(rep_json, list):
 		if rep_json["title"] == "Error S-788":
-			raise Exception("You have not set your account preferences. Please set them here: https://scplanner.net/account")
+			raise Exception("You have probably set use_all_accounts to 'no' and haven't set your account preferences. Please set them here: https://scplanner.net/account")
 		else:
 			print(rep_json)
-			raise Exception("Something weird happened. Please tell Amazed#3330.")
+			raise Exception("Unknown error. Please fill an issue on https://github.com/jeantoulza/scplanner-discord.")
 	type = rep_json[0]["type"]
 	if type == "success" and len(rep_json[0]["success_schedules"]) > 0:
 		group = rep_json[0]["success_schedules"][0]["group"]
@@ -114,12 +120,23 @@ def auto(track_url):
 		if track:
 			return text+"\nSee https://scplanner.net/calendar/reposts/{0}/{1}/{2}".format(soundcloud_id, track.id, group)
 		else:
-			raise Exception("ERROR 312: Schedule was done but I could not find track :( Please PM Amazed#3330.")
+			raise Exception("Schedule was done but I could not find track :(")
 	else:
-		raise Exception("ERROR 851: Track not found :(")
+		raise Exception("Track not found, or something worse happened :(")
 
+def has_role(user, role):
+	'''
+	Returns True if 'user' has the 'role' role, False otherwise.
+	'''
+	for u_role in user.roles:
+		if u_role.name == role:
+			return True
+	return False
 		
 def start_bot():
+	'''
+	Main bot loop
+	'''
 	bot = commands.Bot(command_prefix='!')
 	@bot.event
 	async def on_ready():
@@ -128,9 +145,17 @@ def start_bot():
 		print(bot.user.id)
 		print('------')
 		
-	@bot.command()
-	async def repost(url : str):
+	@bot.command(pass_context=True)
+	async def repost(ctx, url : str):
 		"""Reposts an URL on SCPlanner."""
+		user = ctx.message.author
+		if not isinstance(user, discord.Member):
+			await bot.say("Please use this command in a server.")
+			return
+			
+		if not has_role(user, config["CONFIG"]["reposters_role"]):
+			await bot.say("You do no have the required role.")
+			return
 		try:
 			calendar_link = auto(url)
 			await bot.say(calendar_link)

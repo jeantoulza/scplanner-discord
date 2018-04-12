@@ -1,4 +1,16 @@
 [CONFIG]
+# do not change this
 cookie_name = ci_session
+
+# log in on SCPlanner, and grap the "ci_session" cookie value
 cookie_value = get_your_own
+
+# get one here: https://discordapp.com/developers/applications/me
 bot_token = get_your_own
+
+# reposters_role: only members of this role will be able to repost
+reposters_role = reposters
+
+[AUTOSCHEDULE]
+# use_all_accounts: "yes" if you want to schedule reposts on all subs, "no" (default) if you want the bot to use your saved preferences
+use_all_accounts = no
