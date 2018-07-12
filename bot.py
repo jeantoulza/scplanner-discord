@@ -80,9 +80,7 @@ def auto(track_url):
 		soundcloud_id = resolve(user_url).id
 	except:
 		raise Exception("Could not determine logged in user...")
-		
-	return True
-	
+			
 	rep = br.open(BASE+"schedule")
 		
 	try:
@@ -155,6 +153,7 @@ def start_bot():
 			await bot.say("You do not have the required role to repost or use this bot.")
 			return
 		try:
+			print("Autoscheduling "+url)
 			calendar_link = auto(url)
 			await bot.say(calendar_link)
 		except Exception as e:
