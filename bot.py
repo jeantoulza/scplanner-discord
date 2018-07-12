@@ -80,6 +80,8 @@ def auto(track_url):
 		soundcloud_id = resolve(user_url).id
 	except:
 		raise Exception("Could not determine logged in user...")
+		
+	return True
 	
 	rep = br.open(BASE+"schedule")
 		
@@ -114,13 +116,9 @@ def auto(track_url):
 			raise Exception("Unknown error. Please fill an issue on https://github.com/jeantoulza/scplanner-discord.")
 	type = rep_json[0]["type"]
 	if type == "success" and len(rep_json[0]["success_schedules"]) > 0:
-		group = rep_json[0]["success_schedules"][0]["group"]
+		url = rep_json[0]["success_schedules"]["links"].strip()
 		text = rep_json[0]["text"]
-		track = resolve(track_url)
-		if track:
-			return text+"\nSee https://scplanner.net/calendar/reposts/{0}/{1}/{2}".format(soundcloud_id, track.id, group)
-		else:
-			raise Exception("Schedule was done but I could not find track :(")
+		return text+"\nSee {0}".format(url)
 	else:
 		raise Exception("Track not found, or something worse happened :(")
 
@@ -165,5 +163,5 @@ def start_bot():
 	bot.run(config["CONFIG"]["bot_token"])
 	
 if __name__ == '__main__':
-	start_bot()
-	#auto("https://soundcloud.com/toto/totooooo")
+	#start_bot()
+	auto("https://soundcloud.com/toto/totooooo")
